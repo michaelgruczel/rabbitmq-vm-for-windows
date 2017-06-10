@@ -94,6 +94,26 @@ just some of the most important shell commands:
 
 Ok but what can we find in the Vagrantfile itself ?
 
+networks:
+
+We will use a private network, in order to ensure that the first vm is reachable under 10.0.0.50 and the second under 10.0.0.51, we will add
+
+    ...
+    # config for vm 1
+    node_config.vm.hostname = "rabbit1"
+    node_config.vm.network :private_network, ip:  10.0.0.50
+    ...
+    # config for vm 2
+    node_config.vm.hostname = "rabbit2"
+    node_config.vm.network :private_network, ip:  10.0.0.51
+    
+now we could log in into the first machine and reach the second one by ip e.g. "ping 10.0.0.51".
+In order of reach the machine by a hostname we have 3 options:
+
+* setup DNS
+* adapt the etc/host file by adding the hostname for the ip
+* using the hostmanager plugin to execute option 2 for us
+
 hostmanager:
 
 Vagrant-hostmanager is a Vagrant plugin that manages the hosts file on guest machines. Its goal is to enable resolution of multi-machine environments deployed with a cloud provider where IP addresses are not known in advance. Means instead of using the hostmanager we could just add the entries to the /etc/hosts ourself to fake DNS.
