@@ -1,0 +1,43 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Define the cluster
+nodes = [
+  { :hostname => 'rabbit1', :ip => '10.0.0.50', :extport => '15672'},
+  { :hostname => 'rabbit2', :ip => '10.0.0.51', :extport => '15673'}
+]
+
+Vagrant.configure("2") do |config|
+
+  config.hostmanager.enabled = false
+  config.hostmanager.manage_host = true
+  config.hostmanager.include_offline = true
+  config.hostmanager.ignore_private_ip = false
+
+  nodes.each do |node|
+    config.vm.define node[:hostname] do |node_config|
+      
+      node_config.vm.hostname = node[:hostname]
+      node_config.vm.network :private_network, ip: node[:ip]
+      
+      #node_config.vm.box = "trusty64.box"
+      #node_config.vm.box_url = "https://github.com/sepetrov/trusty64/releases/download/v0.0.5/trusty64.box"
+      node_config.vm.box = "jasonc/centos7"
+      # wholebits/centos7
+      node_config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
+      #node_config.vm.network "forwarded_port", guest: 15672, host: node[:extport]
+      node_config.vm.provision :hostmanager
+
+      config.vm.provision "ansible_local" do |ansible|
+        ansible.verbose = "v"
+        ansible.playbook = "playbook.yaml"
+      end
+
+    end
+  end
+
+end
+
+
+
+
