@@ -10,7 +10,6 @@ What you need:
 * vagrant
 * vagrant-hostmanager plugin (vagrant plugin install vagrant-hostmanager)
 
-
 ## single node setup
 
 What will happen:
@@ -21,8 +20,8 @@ What will happen:
 
 How to make it possible:
 
-   cd single-node
-   vagrant up
+    cd single-node
+    vagrant up
 
 How to use it:
 
@@ -40,8 +39,8 @@ What will happen:
 
 How to make it possible:
 
-   cd two-nodes
-   vagrant up
+    cd two-nodes
+    vagrant up
 
 How to use it in an independent setup (rabbit nodes not clustered):
 
@@ -99,27 +98,27 @@ hostmanager:
 
 Vagrant-hostmanager is a Vagrant plugin that manages the hosts file on guest machines. Its goal is to enable resolution of multi-machine environments deployed with a cloud provider where IP addresses are not known in advance. Means instead of using the hostmanager we could just add the entries to the /etc/hosts ourself to fake DNS.
 
-  config.hostmanager.enabled = false
-  config.hostmanager.manage_host = true
-  config.hostmanager.include_offline = true
-  config.hostmanager.ignore_private_ip = false
-  ...
-  node_config.vm.provision :hostmanager
+    config.hostmanager.enabled = false
+    config.hostmanager.manage_host = true
+    config.hostmanager.include_offline = true
+    config.hostmanager.ignore_private_ip = false
+    ...
+    node_config.vm.provision :hostmanager
 
 virtual boxes:
 
-vagrant download boxes and caches them locally.
+vagrant download boxes and caches them locally:
 
-   # see https://atlas.hashicorp.com/boxes/search for a list of boxes
-   # see https://atlas.hashicorp.com/jasonc/boxes/centos7 
-   node_config.vm.box = "jasonc/centos7"
+    #see https://atlas.hashicorp.com/boxes/search for a list of boxes
+    #see https://atlas.hashicorp.com/jasonc/boxes/centos7 
+    node_config.vm.box = "jasonc/centos7"
 
 In our case we need a centos box with includes guest additions.
 That means we will use virtaulbox to shared folders between the guest and host machine.
 In linux this is not needed, the default mechanism of vagrant to share folders would work.
 Unfortunately we are on windows in this example, so let's use virtual box to share folders
 
-   node_config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
+    node_config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
       
 we will execute some ansible script within the box.
 Normaly we would execute ansible from the host on the box.
@@ -147,6 +146,21 @@ In that folder he expects a filed called main.yml. In order to trigger that scri
       roles:
         - install-rabbit-mq
 
+Ok what happens in the script (main.yml) ?
+
+an ansible command can have the format:
+
+    - name: a description which helps you to describe the step
+      A_MODULE MODULE_PARAMETERS
+      
+see http://docs.ansible.com/ansible/list_of_all_modules.html for the different modules, let us just take one module as example
+
+    - name: install rabbitmq
+      yum: name=rabbitmq-server state=present
+
+We are using the module yum (http://docs.ansible.com/ansible/yum_module.html).
+It installs packages via the yum package manager.
+The module expects the name of the package to install (name) and a state like for example present (a version needs to be installed) or latest (the newest version needs to be installed)
 
 
 
