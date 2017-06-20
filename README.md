@@ -8,7 +8,8 @@ What you need:
 
 * virtualbox
 * vagrant
-* vagrant-hostmanager plugin (vagrant plugin install vagrant-hostmanager)
+* vagrant-hostmanager plugin (`$ vagrant plugin install vagrant-hostmanager`)
+* vagrant-cachier plugin (`$ vagrant plugin install vagrant-cachier`)
 
 ## single node setup
 
@@ -25,7 +26,7 @@ How to make it possible:
 
 How to use it:
 
-* just open http://localhost:15672/ in a browser
+* just open http://rabbit1:15672 or http://localhost:15672/ in a browser
 * The guest/guest or user1/changeme or user1/changeme
 * you can log into the machine with gitbash or cygwin via vagrant ssh, or putty on port 2222 with user vagrant/vagrant
 * if you want to use ansible, log into the machine, go to folder /vagrant and fire the scripts against a real vm
@@ -74,19 +75,19 @@ How to use it in a clustered setup (rabbit nodes are clustered):
 
 So to make it simple, vagrant is automation for vitual machines.
 It can use for example vmware-player, but i will use virtual box.
-The description for your virtual machines are stored in a file called Vagrantfile, 
+The description for your virtual machines are stored in a file called Vagrantfile,
 just some of the most important shell commands:
 
 	# download box if not available in cache, start it, provision it and do networking
 	# or just wake up of suspend state
 	vagrant up
-    
+
     # freeze state of machine, means suspend state
     vagrant suspend
-    
+
     # stop vm
     vagrant halt
-    
+
     # delete vm
     vagrant destroy
 
@@ -106,7 +107,7 @@ We will use a private network, in order to ensure that the first vm is reachable
     # config for vm 2
     node_config.vm.hostname = "rabbit2"
     node_config.vm.network :private_network, ip:  10.0.0.51
-    
+
 now we could log in into the first machine and reach the second one by ip e.g. "ping 10.0.0.51".
 In order of reach the machine by a hostname we have 3 options:
 
@@ -130,7 +131,7 @@ virtual boxes:
 vagrant download boxes and caches them locally:
 
     #see https://atlas.hashicorp.com/boxes/search for a list of boxes
-    #see https://atlas.hashicorp.com/jasonc/boxes/centos7 
+    #see https://atlas.hashicorp.com/jasonc/boxes/centos7
     node_config.vm.box = "jasonc/centos7"
 
 In our case we need a centos box with includes guest additions.
@@ -139,11 +140,11 @@ In linux this is not needed, the default mechanism of vagrant to share folders w
 Unfortunately we are on windows in this example, so let's use virtual box to share folders
 
     node_config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
-      
+
 we will execute some ansible script within the box.
 Normaly we would execute ansible from the host on the box.
 Unfortunately we are on windows and installing ansible on windows is painful.
-So instead vagrant will install ansible within the box and execute our playbook. 
+So instead vagrant will install ansible within the box and execute our playbook.
 
     config.vm.provision "ansible_local" do |ansible|
       # vvv would be more verbose, default is more or less silent
@@ -172,7 +173,7 @@ an ansible command can have the format:
 
     - name: a description which helps you to describe the step
       A_MODULE MODULE_PARAMETERS
-      
+
 see http://docs.ansible.com/ansible/list_of_all_modules.html for the different modules, let us just take one module as example
 
     - name: install rabbitmq
@@ -181,6 +182,7 @@ see http://docs.ansible.com/ansible/list_of_all_modules.html for the different m
 We are using the module yum (http://docs.ansible.com/ansible/yum_module.html).
 It installs packages via the yum package manager.
 The module expects the name of the package to install (name) and a state like for example present (a version needs to be installed) or latest (the newest version needs to be installed)
+
 
 ## three nodes setup
 
