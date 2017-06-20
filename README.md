@@ -182,5 +182,27 @@ We are using the module yum (http://docs.ansible.com/ansible/yum_module.html).
 It installs packages via the yum package manager.
 The module expects the name of the package to install (name) and a state like for example present (a version needs to be installed) or latest (the newest version needs to be installed)
 
+## three nodes setup
 
-
+<PRE>
+vagrant up
+vagrant ssh testsystem-jumphost
+# let's install rabbit on booth hosts
+ansible-playbook -vvv install-rabbit.yml -i "testsystem1,testtsytem2" -u vagrant -k
+# let's connect rabbit2 to rabbit 1 in order to get a cluster
+ansible-playbook -vvv cluster-rabbit.yml -i "testsystem1" --extra-vars "target=testsystem2"-u vagrant -k
+# let's install a service discovery on booth hosts
+ansible-playbook -vvv install-service-discovery.yml -i "testsystem1,testtsytem2" -u vagrant -k
+# let's connect booth service discoveries in order to get a cluster
+ansible-playbook -vvv cluster-service-discovery.yml -i "testsystem1" --extra-vars "sd1=testsystem1" --extra-vars "sd2=testsystem2" -u vagrant -k
+# install elasticsearch with a kibana search UI on host
+ansible-playbook -vvv install-elasticsearch-and-kibana.yml -i "testsystem1" -u vagrant -k
+# install forwarder on booth hosts to send log file data to the elastic on host 1
+ansible-playbook -vvv install-logstash-agent.yml -i "testsystem1,testsystem2" --extra-vars "output=testsystem1" u vagrant -k
+# let's install a filewatcher app on booth hosts, which will put content of file in a specific folder into queue
+ansible-playbook -vvv install-app.yml -i "testsystem1,testtsytem2" --extra-vars "app-name=filewatcher-dummy" -u vagrant -k
+# let's install a rabbit consumer on booth hosts which consumes from queue and writes the file into a folder
+ansible-playbook -vvv install-app.yml -i "testsystem1,testtsytem2" --extra-vars "app-name=rabbit-consumer-dummy" -u vagrant -k
+# let's verify the installation by adding a file to a folder for the watcher and check that the consumer was receiving it
+ansible-playbook -vvv dry-run.yml -i "testsystem1,testtsytem2"
+</PRE>

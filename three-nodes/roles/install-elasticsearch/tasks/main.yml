@@ -1,0 +1,26 @@
+- name: install open jdk 1.8
+  yum: name=yum install java-1.7.0-openjdk-devel state=present
+
+- name: download elasticsearch
+  shell: wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-5.4.1.noarch.rpm
+
+- name: install elasticsearch
+  shell: sudo rpm -ivh elasticsearch-5.4.1.noarch.rpm
+
+- name: copy elasticsearch config
+  copy:
+    src: ./elasticsearch.yml
+    dest: /etc/elasticsearch.yml
+    mode: 0644
+    backup: yes
+
+- name: ensure start of elasticsearch
+  shell: sudo systemctl enable elasticsearch.service
+
+- name: restart of elasticsearch
+  shell: sudo systemctl restart elasticsearch.service
+
+# todo that's a dirty way to do it, changy to normal yum install and use idempotetn commands
+
+
+

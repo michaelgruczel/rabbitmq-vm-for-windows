@@ -1,0 +1,23 @@
+- name: download kibana
+  shell: wget https://artifacts.elastic.co/downloads/kibana/kibana-5.4.1-x86_64.rpm
+
+- name: install kibana
+  shell: sudo rpm -ivh kibana-5.4.1-x86_64.rpm
+
+- name: copy kibana config
+  copy:
+    src: ./kibana.yml
+    dest: /etc/kibana.yml
+    mode: 0644
+    backup: yes
+
+- name: ensure start of kibana
+  shell: sudo systemctl enable kibana.service
+
+- name: restart of kibana
+  shell: sudo systemctl restart kibana.service
+
+# todo that's a dirty way to do it, changy to normal yum install and use idempotetn commands
+
+
+

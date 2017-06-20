@@ -1,0 +1,39 @@
+- name: install epel-release
+  yum: name=epel-release state=latest
+  tags: erlang
+
+- name: install erlang from EPEL
+  yum: name=erlang state=latest
+  tags: erlang
+
+- name: install rabbitmq
+  yum: name=rabbitmq-server state=present
+
+- name: enable rabbitmq plugins
+  rabbitmq_plugin: names=rabbitmq_management,rabbitmq_tracing,rabbitmq_federation state=enabled
+
+- name: set rabbitmq cookie
+  shell: echo SVTRZKAOOADLOJQAOBJQ > /var/lib/rabbitmq/.erlang.cookie
+
+- name: set owner rabbitmq cookie
+  shell: chown rabbitmq:rabbitmq /var/lib/rabbitmq/.erlang.cookie
+
+- name: set rabbitmq cookie  permission
+  shell: chmod 600 /var/lib/rabbitmq/.erlang.cookie
+
+- name: make cookie readable
+  file:
+    path: /var/lib/rabbitmq/.erlang.cookie
+    mode: 0600
+
+- name: set rabbitmq cookie  permission
+  shell: chmod 600 /var/lib/rabbitmq/.erlang.cookie
+
+- name: stop rabbit
+  shell: rabbitmqctl stop_app
+
+- name: join rabbit cluster
+  shell: rabbitmqctl join_cluster rabbit@{{ target }}
+
+- name: start rabbit
+  shell: rabbitmqctl start_app
