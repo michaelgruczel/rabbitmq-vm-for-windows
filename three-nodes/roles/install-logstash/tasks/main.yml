@@ -1,24 +1,20 @@
-- name: install open jdk 1.7
-  yum: name=yum install java-1.7.0-openjdk-devel state=present
+- name: download logstashhttps://artifacts.elastic.co/downloads/logstash/logstash-5.4.1.rpm
 
-- name: download elasticsearch
-  shell: wget https://download.elastic.co/elasticsearch/elasticsearch/elasticsearch-5.4.1.noarch.rpm
+- name: install logstash
+  shell: sudo rpm -ivh logstash-5.4.1.noarch.rpm
 
-- name: install elasticsearch
-  shell: sudo rpm -ivh elasticsearch-5.4.1.noarch.rpm
-
-- name: copy rabbit cluster config
+- name: copy config
   copy:
-    src: ./elasticsearch.yml
-    dest: /etc/elasticsearch.yml
+    src: ./applications.conf
+    dest: /etc/logstash/conf.d/applications.conf
     mode: 0644
     backup: yes
 
-- name: ensure start of elasticsearch
-  shell: sudo systemctl enable elasticsearch.service
+- name: ensure start of logstash
+  shell: sudo systemctl enable logstash.service
 
-- name: restart of elasticsearch
-  shell: sudo systemctl restart elasticsearch.service
+- name: restart of logstash
+  shell: sudo systemctl restart logstash.service
 
 # todo that's a dirty way to do it, changy to normal yum install and use idempotetn commands
 
