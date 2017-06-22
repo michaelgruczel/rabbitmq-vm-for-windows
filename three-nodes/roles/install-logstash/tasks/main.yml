@@ -1,7 +1,13 @@
-- name: download logstashhttps://artifacts.elastic.co/downloads/logstash/logstash-5.4.1.rpm
+- name: remove old logstash downloads
+  shell: rm -rf logstash*rpm
+  ignore_errors: yes
+
+- name: download logstash
+  shell: wget https://artifacts.elastic.co/downloads/logstash/logstash-5.4.2.rpm
 
 - name: install logstash
-  shell: sudo rpm -ivh logstash-5.4.1.noarch.rpm
+  shell: sudo rpm -ivh logstash-5.4.2.rpm
+  ignore_errors: yes
 
 - name: copy config
   copy:
@@ -10,11 +16,8 @@
     mode: 0644
     backup: yes
 
-- name: ensure start of logstash
-  shell: sudo systemctl enable logstash.service
-
 - name: restart of logstash
-  shell: sudo systemctl restart logstash.service
+  command: "cd /usr/share/logstash/bin/ && nohup sudo ./logstash -f /etc/logstash/conf.d/ &&"
 
 # todo that's a dirty way to do it, changy to normal yum install and use idempotetn commands
 

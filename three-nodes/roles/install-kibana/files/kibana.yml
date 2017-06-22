@@ -1,3 +1,6 @@
+server.host: 10.0.0.61
+#0.0.0.0
+
 # Kibana is served by a back end server. This setting specifies the port to use.
 #server.port: 5601
 
@@ -103,6 +106,6 @@
 # translations.
 #i18n.defaultLocale: "en"
 
-server.host: 0.0.0.0
+
 
 

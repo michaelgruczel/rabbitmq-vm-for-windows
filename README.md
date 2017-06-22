@@ -186,25 +186,33 @@ The module expects the name of the package to install (name) and a state like fo
 
 ## three nodes setup
 
-<PRE>
-vagrant up
-vagrant ssh testsystem-jumphost
-# let's install rabbit on booth hosts
-ansible-playbook -vvv install-rabbit.yml -i "testsystem1,testtsytem2" -u vagrant -k
-# let's connect rabbit2 to rabbit 1 in order to get a cluster
-ansible-playbook -vvv cluster-rabbit.yml -i "testsystem1" --extra-vars "target=testsystem2"-u vagrant -k
-# let's install a service discovery on booth hosts
-ansible-playbook -vvv install-service-discovery.yml -i "testsystem1,testtsytem2" -u vagrant -k
-# let's connect booth service discoveries in order to get a cluster
-ansible-playbook -vvv cluster-service-discovery.yml -i "testsystem1" --extra-vars "sd1=testsystem1" --extra-vars "sd2=testsystem2" -u vagrant -k
-# install elasticsearch with a kibana search UI on host
-ansible-playbook -vvv install-elasticsearch-and-kibana.yml -i "testsystem1" -u vagrant -k
-# install forwarder on booth hosts to send log file data to the elastic on host 1
-ansible-playbook -vvv install-logstash-agent.yml -i "testsystem1,testsystem2" --extra-vars "output=testsystem1" u vagrant -k
-# let's install a filewatcher app on booth hosts, which will put content of file in a specific folder into queue
-ansible-playbook -vvv install-app.yml -i "testsystem1,testtsytem2" --extra-vars "app-name=filewatcher-dummy" -u vagrant -k
-# let's install a rabbit consumer on booth hosts which consumes from queue and writes the file into a folder
-ansible-playbook -vvv install-app.yml -i "testsystem1,testtsytem2" --extra-vars "app-name=rabbit-consumer-dummy" -u vagrant -k
-# let's verify the installation by adding a file to a folder for the watcher and check that the consumer was receiving it
-ansible-playbook -vvv dry-run.yml -i "testsystem1,testtsytem2"
-</PRE>
+This setup is the most realistic one.
+The first vm will be a jumphost, comparable to a jumphost with a jenkins.
+Only this one will have an ansible installation. From that node all installations can be done.
+The advantage is that it is more near to reality and that you can change script and re-run them without re-provisioning of the vm.
+
+So let's setup the 3 nodes (1 jumphost and 2 emtpy centos vms) and login to the jumphost.
+
+    vagrant up
+    vagrant ssh testsystem-jumphost
+    # if you do not have gitbash or cygwin, use putty on vagrant@localhost:2222
+
+So let's install rabbit on booth nodes.
+
+    cd /vagrant
+    export ANSIBLE_HOST_KEY_CHECKING=False
+    ansible-playbook -vvv install-rabbit.yaml -i "testsystem1,testsystem2" -u vagrant -k
+
+Now we have 2 testnodes with rabbit (http://10.0.0.61:15672 and http://10.0.0.61:15672, user1 with password changeme), but booth rabbit nodes are not connected to a cluster, let's change that by telling node1 (testsystem1) to connect to node 2 (testsystem2).   
+
+    ansible-playbook -vvv cluster-rabbit.yaml -i "testsystem1," --extra-vars "target=testsystem2" -u vagrant -k
+
+Cool they are connected now, but I would see some logs of rabbit. Let's install elasticsearch (single node setup) on testnode1 and let's install a kibana frontend as well on that node.
+
+    ansible-playbook -vvv install-elasticsearch-and-kibana.yaml -i "testsystem1," -u vagrant -k
+
+Cool now you can open the kibana UI on (elasticsearch at http://10.0.0.61::9200 and kibana at http://10.0.0.61::5601/app/kibana) but it's empty. Lets install logstash agents on booth hosts to forward the rabbit logs to elasticsearch.
+
+    ansible-playbook -vvv install-logstash-agent.yaml -i "testsystem1,testsystem2" -u vagrant -k
+
+All you have to do now is to trigger some events which lead to a log in rabbit and the index and logs will appear in kibana

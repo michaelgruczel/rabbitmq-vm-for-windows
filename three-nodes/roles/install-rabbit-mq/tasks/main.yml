@@ -18,22 +18,22 @@
 - name: set owner rabbitmq cookie
   shell: chown rabbitmq:rabbitmq /var/lib/rabbitmq/.erlang.cookie
 
-- name: set rabbitmq cookie  permission
-  shell: chmod 600 /var/lib/rabbitmq/.erlang.cookie
-
 - name: make cookie readable
   file:
     path: /var/lib/rabbitmq/.erlang.cookie
     mode: 0600
 
-- name: set rabbitmq cookie  permission
-  shell: chmod 600 /var/lib/rabbitmq/.erlang.cookie
+#- name: set rabbitmq cookie  permission
+#  shell: chmod 600 /var/lib/rabbitmq/.erlang.cookie
 
-- name: stop rabbit
-  shell: rabbitmqctl stop_app
+- name: restart rabbitmq
+  shell: sudo service rabbitmq-server restart
 
-- name: join rabbit cluster
-  shell: rabbitmqctl join_cluster rabbit@{{ target }}
+- name: add users
+  rabbitmq_user: user={{item}} password=changeme tags=administrator,{{item}} vhost=/ configure_priv=.* write_priv=.* read_priv=.* state=present
+  with_items:
+  - user1
+  - user2
 
-- name: start rabbit
-  shell: rabbitmqctl start_app
+- name: enable rabbitmq-server to survive reboot
+  service: name=rabbitmq-server enabled=yes  
