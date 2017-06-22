@@ -211,7 +211,7 @@ Cool they are connected now, but I would see some logs of rabbit. Let's install 
 
     ansible-playbook -vvv install-elasticsearch-and-kibana.yaml -i "testsystem1," -u vagrant -k
 
-Cool now you can open the kibana UI on (elasticsearch at http://10.0.0.61::9200 and kibana at http://10.0.0.61::5601/app/kibana) but it's empty. Lets install logstash agents on booth hosts to forward the rabbit logs to elasticsearch.
+Cool now you can open the kibana UI on (elasticsearch at http://10.0.0.61:9200 and kibana at http://10.0.0.61:5601/app/kibana) but it's empty. Lets install logstash agents on booth hosts to forward the rabbit logs to elasticsearch.
 
     ansible-playbook -vvv install-logstash-agent.yaml -i "testsystem1,testsystem2" -u vagrant -k
 
