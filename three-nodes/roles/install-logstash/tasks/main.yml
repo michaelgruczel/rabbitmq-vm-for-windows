@@ -17,9 +17,6 @@
     backup: yes
 
 - name: restart of logstash
-  command: "cd /usr/share/logstash/bin/ && nohup sudo ./logstash -f /etc/logstash/conf.d/ &&"
+  command: "cd /usr/share/logstash/bin/ && nohup sudo ./logstash -f /etc/logstash/conf.d/ &"
 
 # todo that's a dirty way to do it, changy to normal yum install and use idempotetn commands
-
-
-

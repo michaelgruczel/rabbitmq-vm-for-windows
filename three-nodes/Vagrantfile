@@ -7,8 +7,8 @@ jumphosts = [
 ]
 
 nodes = [
-  { :hostname => 'testsystem1', :ip => '10.0.0.61'},
-  { :hostname => 'testsystem2', :ip => '10.0.0.62'}
+  { :hostname => 'testsystem1', :ip => '10.0.0.61', :mem => '4096', :cpus => '1' },
+  { :hostname => 'testsystem2', :ip => '10.0.0.62', :mem => '4096', :cpus => '1' }
 ]
 
 Vagrant.configure("2") do |config|
@@ -21,16 +21,16 @@ Vagrant.configure("2") do |config|
   jumphosts.each do |node|
     config.vm.define node[:hostname] do |node_config|
       node_config.vm.hostname = node[:hostname]
-      node_config.vm.network :private_network, ip: node[:ip]      
+      node_config.vm.network :private_network, ip: node[:ip]
       node_config.vm.box = "jasonc/centos7"
       # wholebits/centos7
       node_config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
       # install ansible
       node_config.vm.provision "shell", inline: "sudo yum install -y epel-release"
-      node_config.vm.provision "shell", inline: "sudo yum install -y ansible"      
+      node_config.vm.provision "shell", inline: "sudo yum install -y ansible"
       node_config.vm.provision :hostmanager
     end
-  end  
+  end
 
   nodes.each do |node|
     config.vm.define node[:hostname] do |node_config|
@@ -39,17 +39,13 @@ Vagrant.configure("2") do |config|
       #node_config.vm.box = "trusty64.box"
       #node_config.vm.box_url = "https://github.com/sepetrov/trusty64/releases/download/v0.0.5/trusty64.box"
       node_config.vm.box = "jasonc/centos7"
+      node_config.vm.provider :virtualbox do |vb|
+        vb.customize ["modifyvm", :id, "--memory", node[:mem], "--cpus", node[:cpus]]
+      end
       # wholebits/centos7
       node_config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
       node_config.vm.provision :hostmanager
     end
-    config.vm.provider "virtualbox" do |v|
-      v.memory = 4096
-    end
   end
 
 end
-
-
-
-
